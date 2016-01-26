@@ -8,19 +8,32 @@ import traceback
 from random import shuffle
 import random
 
+#testing random
+##    if message.content[0:7] == '!random':
+##        t = open('tzuyucommands.txt', 'r+')
+##        lines = file_len('tzuyucommands.txt', 'r')
+##        r = random.randrange(0, lines)
+##
+##        
+##        yield from client.send_message(message.channel, random_command)
+##        
+##        
+##        if message.content.lower()[1:] == line.split()[0]:
+##            new = line.split()
+##            user_command = ''
+##            for x in new[1:]:
+##                user_command += x + ' '
+##            yield from client.send_message(message.channel, user_command)
+
 #Make a new discord account and use that info for below.
 user = "berkuhlee@live.com" #input email here
 passw = "iuiu123" #input password here
 
-helpmessage = "`I was made to meme and track tzuyu. !commands`"
-commands = "`creator help tzuyu freetzuyu twice myb iljinsol eatshit yoga feels poormina 2/10 chappa redvelvet server jyp kkt thumbsup balance [twicememberhere]\
-bae dafuq omo seulgi xf bbasae waytogo diet pie fraudy treudy tease weinthere bye gtfo gyuri dance eunji monstercock joy taecyeon babyboo heart topmadam saranghae\
-sheets`"
+helpmessage = "I was made to meme and track tzuyu. To add a command: `!add [command] [link]. `!commands` for a list of commands slide into your dms."
 
 thumbsup = ['https://i.imgur.com/hFttBo4.png','https://scontent.cdninstagram.com/hphotos-xfp1/t51.2885-15/s320x320/e35/12346292_1555213704768617_309988403_n.jpg',\
             'https://puu.sh/j18wM.jpg', 'https://57.media.tumblr.com/576937e2dc3e53298df6b26a4ec38d47/tumblr_ny8b06hBuQ1ti35kvo6_400.gif',\
             'https://i.imgur.com/hFttBo4.png', 'https://giant.gfycat.com/VacantFavoriteArrowcrab.gif','http://i.imgur.com/OoJLnCh.gifv']
-##random = thumbsup[random.randint(0,len(thumbsup)-1)]
 
 client = discord.Client()
 
@@ -40,6 +53,34 @@ def on_message(message):
         return
     if message.channel.is_private:
         yield from client.send_message(message.channel, 'You cannot use this bot in private messages.')
+    ##Tzuyucommands
+    if message.content[0:4] == '!add':
+        check = True
+        new = message.content.split()
+        t = open('tzuyucommands.txt', 'r+')
+        c = open('commandslist.txt', 'r+')
+        try:
+            for line in t:
+                    if new[1] == line.split()[0]:
+                        check = False
+                        yield from client.send_message(message.channel, "Command `" + new[1] + "` is already in the commands list.")
+            if check == True:
+                t.write('\n' + new[1] + ' ' + new[2])
+                c2 = c.read()
+                c2 = c2[0:(len(c2)-1)]
+                c2 += ' ' + new[1]
+                print(c2[len(c2)-25:])
+                c.truncate(0)
+                c.seek(0)
+                c.write(c2)
+                yield from client.send_message(message.channel, "Added `" + new[1] + "` to the commands list.")
+
+        except IndexError:
+            yield from client.send_message(message.channel, 'Please match the format `!add [command] [link]`')
+        finally:
+            t.close()
+            c.close()
+    ##Tzuyucommands
     if '!thumbsup' in message.content.lower():
         thumbsup2 = list(thumbsup)
         shuffle(thumbsup2)
@@ -49,65 +90,44 @@ def on_message(message):
     elif '!help' in message.content.lower():
         yield from client.send_message(message.channel, helpmessage)
     elif '!commands' in message.content.lower():
-        yield from client.send_message(message.channel, commands)
-    elif '!tzuyu' in message.content.lower():
-        yield from client.send_message(message.channel, 'http://www.istzuyustillintwice.com/ http://i.imgur.com/5ccTbp3.png')
-    elif '!twice' in message.content.lower():
-        yield from client.send_message(message.channel, 'http://puu.sh/mvc45.mp3 http://i.imgur.com/tLoZM5w.png')
+        c = open('commandslist.txt', 'r+')
+        c1 = c.read()
+        if len(c1) >= 2000:
+            c2 = c1[2000:4000]
+            c3 = c1[4000:6000]
+            c4 = c1[6000:8000]
+            c1 = c1[:2000]
+        c.close()
+        yield from client.send_message(message.author, c1)
+        yield from client.send_message(message.author, c2)
+        yield from client.send_message(message.author, c3)
+        yield from client.send_message(message.author, c4)
+    elif '!master' in message.content.lower():
+        yield from client.send_message(message.channel, 'My master is Berk oppa')
+    elif '!minaboys' in message.content.lower():
+        yield from client.send_message(message.channel, '(◕‿◕✿) M I N A B O Y S (◠‿◠)✌')
     elif '!iljinsol' in message.content.lower():
         yield from client.send_message(message.channel, 'https://i.imgur.com/1HV4khy.png')
-    elif '!feels' in message.content.lower():
-        yield from client.send_message(message.channel, 'http://i.imgur.com/rvyDrsG.png')
     elif '!2/10' in message.content.lower():
         yield from client.send_message(message.channel, 'http://i.imgur.com/tV8dKP1.jpg')
     elif '!freetzuyu' in message.content.lower():
         yield from client.send_message(message.channel, 'http://i.imgur.com/X8W4TRj.jpg')
-    elif '!eatshit' in message.content.lower():
-        yield from client.send_message(message.channel, 'http://i.imgur.com/kJC6lMr.png')
-    elif '!myb' in message.content.lower():
-        yield from client.send_message(message.channel, 'http://i.imgur.com/WuhxJz7.png')
     elif '!yoga' in message.content.lower():
         yield from client.send_message(message.channel, 'http://i.imgur.com/9UQuGiT.png')
-    elif '!myb2' in message.content.lower():
-        yield from client.send_message(message.channel, 'http://i.imgur.com/M6C0knj.png')
     elif '!poormina' in message.content.lower():
         yield from client.send_message(message.channel, 'http://i.imgur.com/skaJjeM.png')
     elif '!chappa' in message.content.lower():
         yield from client.send_message(message.channel, 'http://i.imgur.com/zc6zymM.jpg')
-    elif '!redvelvet' in message.content.lower():
-        yield from client.send_message(message.channel, 'http://i.imgur.com/1AwZ8vH.png')
     elif '!server' in message.content.lower():
         yield from client.send_message(message.channel, '`Old Man Cho`')
-    elif '!jyp' in message.content.lower():
-        yield from client.send_message(message.channel, 'http://i.imgur.com/Tji2H6D.png')
     elif '!kkt' in message.content.lower():
         yield from client.send_message(message.channel, '`CREDS TO JAY:` http://i.imgur.com/ats5h3v.jpg')
     elif '!balance' in message.content.lower():
         yield from client.send_message(message.channel, "`rip slots, have this instead:` http://40.media.tumblr.com/tumblr_m4mn1rKgWA1rq9gbpo1_540.png")
-    elif '!chaeyoung' in message.content.lower():
-        yield from client.send_message(message.channel, 'http://i.imgur.com/8inTuJ0.png')
-    elif '!momo' in message.content.lower():
-        yield from client.send_message(message.channel, 'https://i.imgur.com/2MJaqOe.jpg')
-    elif '!sana' in message.content.lower():
-        yield from client.send_message(message.channel, 'https://i.imgur.com/dk9TxHl.gifv')
-    elif '!mina' in message.content.lower():
-        yield from client.send_message(message.channel, "http://i.imgur.com/56a1Qfg.jpg")
-    elif '!dahyun' in message.content.lower():
-        yield from client.send_message(message.channel, "http://i.imgur.com/GMNlLiU.gifv")
-    elif '!jihyo' in message.content.lower():
-        yield from client.send_message(message.channel, "https://i.imgur.com/91N9Ww0.gifv")
-    elif '!jungyeon' in message.content.lower():
-        yield from client.send_message(message.channel, "https://38.media.tumblr.com/1ddcc1e3e0def97fd05d1b04a5728d09/tumblr_nwh4wl5bUp1qi59tso4_540.gif")
-    elif '!nayeon' in message.content.lower():
-        yield from client.send_message(message.channel, "https://i.imgur.com/NWdSMmx.gifv")
-    elif '!bae' in message.content.lower():
-        yield from client.send_message(message.channel, "http://i.imgur.com/1USUvjm.gif")
     elif '!dafuq' in message.content.lower():
         yield from client.send_message(message.channel, "http://i.imgur.com/Zc5Axan.gif")    
     elif '!omo' in message.content.lower():
-        yield from client.send_message(message.channel, "http://i.imgur.com/95cTuVx.gif")  
-    elif '!seulgi' in message.content.lower():
-        yield from client.send_message(message.channel, "https://giant.gfycat.com/PeriodicEvilAdeliepenguin.gif")  
+        yield from client.send_message(message.channel, "http://i.imgur.com/95cTuVx.gif")   
     elif '!xf' in message.content.lower():
         yield from client.send_message(message.channel, "http://i.imgur.com/izoDUtQ.jpg")  
     elif '!bbasae' in message.content.lower():
@@ -132,28 +152,46 @@ def on_message(message):
         yield from client.send_message(message.channel, "http://i.imgur.com/Uh2UN4M.gif")  
     elif '!gyuri' in message.content.lower():
         yield from client.send_message(message.channel, "https://pbs.twimg.com/media/B-2yofOWkAIruY5.jpg")  
-    elif '!dance' in message.content.lower():
-        yield from client.send_message(message.channel, "http://i.imgur.com/jHZgsB6.gif")  
-    elif '!eunji' in message.content.lower():
-        yield from client.send_message(message.channel, "http://i.imgur.com/axVUOot.jpg")  
     elif '!monstercock' in message.content.lower():
         yield from client.send_message(message.channel, "http://giphy.com/gifs/WAmyJDl6qSR0Y")  
     elif '!joy' in message.content.lower():
-        yield from client.send_message(message.channel, "http://i.imgur.com/TkogKax.jpg")  
+        yield from client.send_message(message.channel, "http://i.imgur.com/TkogKax.jpg")
     elif '!taecyeon' in message.content.lower():
-        yield from client.send_message(message.channel, "http://i.imgur.com/l6g0bGN.gif")  
+        yield from client.send_message(message.channel, "http://i.imgur.com/l6g0bGN.gif")
     elif '!babyboo' in message.content.lower():
-        yield from client.send_message(message.channel, "http://i.imgur.com/HYrlyVR.gif")  
+        yield from client.send_message(message.channel, "http://i.imgur.com/HYrlyVR.gif")
     elif '!heart' in message.content.lower():
-        yield from client.send_message(message.channel, "http://i.imgur.com/JvLvRP9.gif")  
+        yield from client.send_message(message.channel, "http://i.imgur.com/JvLvRP9.gif")
     elif '!topmadam' in message.content.lower():
-        yield from client.send_message(message.channel, "http://i.imgur.com/aAwItD1.gif")  
-    elif '!saranghae' in message.content.lower():
-        yield from client.send_message(message.channel, "http://i.imgur.com/I80O2pJ.gif")
+        yield from client.send_message(message.channel, "http://i.imgur.com/aAwItD1.gif")
+    elif '!kasper' in message.content.lower():
+        yield from client.send_message(message.channel, "http://i.imgur.com/gq3eW8j.gif")
+    elif '!gfriend' in message.content.lower():
+        yield from client.send_message(message.channel, "http://i.imgur.com/JIgNyiv.jpg")
     elif '!sheets' in message.content.lower():
         yield from client.send_message(message.channel, "(◕‿◕✿) Aegyo in the streets. Noona in the sheets (◕‿-)")
+    elif '!berkgirl' in message.content.lower():
+        yield from client.send_message(message.channel, '(◠‿◠)✌ ʜᴇʟʟᴏ ʙᴇʀᴋ, ɪ ᴀᴍ ᴀ ʏᴏᴜɴɢ ʙᴇᴀᴜᴛɪғᴜʟ ᴋᴏʀᴇᴀɴ ɢɪʀʟ  (◡‿◡✿) \
+ᴀɴᴅ ɪ ᴡᴏᴜʟᴅ ᴊᴜsᴛ ʟɪᴋᴇ ᴛᴏ ʟᴇᴛ ʏᴏᴜ ᴋɴᴏᴡ ᴛʜᴀᴛ ɪ ᴀᴅᴍɪʀᴇ ʏᴏᴜ ᴇᴠᴇʀʏ ᴅᴀʏ ᴀɴᴅ ɢɪɢɢʟᴇ ᴛᴏ ᴍʏsᴇʟғ \
+ʙᴇᴄᴀᴜsᴇ ᴏғ ʜᴏᴡ ɢᴏᴏᴅ ʏᴏᴜ ᴀʀᴇ ᴀᴛ ᴄᴏᴅɪɴɢ ʙᴏᴛꜱ (｡♥‿♥｡).  ɪ ʜᴏᴘᴇ ᴏɴᴇ ᴅᴀʏ ʏᴏᴜ ᴄᴀɴ ᴛᴇᴀᴄʜ ᴍᴇ sᴏᴍᴇᴛʜɪɴɢ (◕‿-)')
+    else:
+        try:
+            if (message.content.lower()[0] == '!') and (message.content.lower() != '!'):
+                for line in open('tzuyucommands.txt', 'r+'):
+                        if message.content.lower()[1:] == line.split()[0]:
+                            new = line.split()
+                            user_command = ''
+                            for x in new[1:]:
+                                user_command += x + ' '
+                            yield from client.send_message(message.channel, user_command)
+        except IndexError:
+            pass
 
-
+def file_len(fname):
+    with open(fname) as f:
+        for i, l in enumerate(f):
+            pass
+    return i + 1
 
 @asyncio.coroutine
 def playlist_update():
