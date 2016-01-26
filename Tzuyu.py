@@ -24,6 +24,9 @@ import random
 ##            for x in new[1:]:
 ##                user_command += x + ' '
 ##            yield from client.send_message(message.channel, user_command)
+#testing random
+
+#test commit
 
 #Make a new discord account and use that info for below.
 user = "berkuhlee@live.com" #input email here
