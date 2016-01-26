@@ -1,0 +1,2 @@
+python tzuyu.py
+pause
