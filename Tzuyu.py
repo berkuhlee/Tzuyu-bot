@@ -90,18 +90,21 @@ def on_message(message):
     elif '!help' in message.content.lower():
         yield from client.send_message(message.channel, helpmessage)
     elif '!commands' in message.content.lower():
-        c = open('commandslist.txt', 'r+')
-        c1 = c.read()
-        if len(c1) >= 2000:
-            c2 = c1[2000:4000]
-            c3 = c1[4000:6000]
-            c4 = c1[6000:8000]
-            c1 = c1[:2000]
-        c.close()
-        yield from client.send_message(message.author, c1)
-        yield from client.send_message(message.author, c2)
-        yield from client.send_message(message.author, c3)
-        yield from client.send_message(message.author, c4)
+        try:
+            c = open('commandslist.txt', 'r+')
+            c1 = c.read()
+            if len(c1) >= 2000:
+                c2 = c1[2000:4000]
+                c3 = c1[4000:6000]
+                c4 = c1[6000:8000]
+                c1 = c1[:2000]
+            c.close()
+            yield from client.send_message(message.author, c1)
+            yield from client.send_message(message.author, c2)
+            yield from client.send_message(message.author, c3)
+            yield from client.send_message(message.author, c4)
+        except:
+            pass
     elif '!master' in message.content.lower():
         yield from client.send_message(message.channel, 'My master is Berk oppa')
     elif '!minaboys' in message.content.lower():
