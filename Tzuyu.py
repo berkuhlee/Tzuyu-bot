@@ -9,21 +9,6 @@ from random import shuffle
 import random
 
 #testing random
-##    if message.content[0:7] == '!random':
-##        t = open('tzuyucommands.txt', 'r+')
-##        lines = file_len('tzuyucommands.txt', 'r')
-##        r = random.randrange(0, lines)
-##
-##        
-##        yield from client.send_message(message.channel, random_command)
-##        
-##        
-##        if message.content.lower()[1:] == line.split()[0]:
-##            new = line.split()
-##            user_command = ''
-##            for x in new[1:]:
-##                user_command += x + ' '
-##            yield from client.send_message(message.channel, user_command)
 
 #Make a new discord account and use that info for below.
 user = "berkuhlee@live.com" #input email here
@@ -48,11 +33,10 @@ def on_ready():
         
 @client.async_event
 def on_message(message):
-    thumbsup2 = []
     if message.author == client.user:
         return
     if message.channel.is_private:
-        yield from client.send_message(message.channel, 'You cannot use this bot in private messages.')
+        yield from client.send_message(message.channel, 'You sneaky')
     ##Tzuyucommands
     if message.content[0:4] == '!add':
         check = True
@@ -79,7 +63,36 @@ def on_message(message):
         finally:
             t.close()
             c.close()
+    ########
+##    if message.content[0:5] == '!edit':
+##        t = open('tzuyucommands.txt', 'r+')
+##        new = message.content.split()
+##        for line in t:
+##            if new[1] == line.split()[0]:
+##                x = list(t)
+##                aa=0
+##                for element in x:
+##                    if new[1] == element.split()[0]:
+##                        del x[aa]
+##                    aa+=1
+##                
+##                yield from client.send_message(message.channel, "Edited.")
+    ########
+    if message.content[0:7] == '!random':
+        t = open('tzuyucommands.txt', 'r+')
+        lines = file_len('tzuyucommands.txt')
+        r = random.randrange(0, lines)
+        z=0
+        for line in t:
+            z+=1
+            if z == r:
+                new = line.split()
+                random_command = ''
+                for x in new:
+                    random_command += x + ' '
+                yield from client.send_message(message.channel, random_command)
     ##Tzuyucommands
+    thumbsup2 = []
     if '!thumbsup' in message.content.lower():
         thumbsup2 = list(thumbsup)
         shuffle(thumbsup2)
@@ -89,24 +102,25 @@ def on_message(message):
     elif '!help' in message.content.lower():
         yield from client.send_message(message.channel, helpmessage)
     elif '!commands' in message.content.lower():
-        c = open('commandslist.txt', 'r+')
-        c1 = c.read()
-        if len(c1) >= 2000:
-            c2 = c1[2000:4000]
-            c3 = c1[4000:6000]
-            c4 = c1[6000:8000]
-            c1 = c1[:2000]
-        c.close()
-        yield from client.send_message(message.author, c1)
-        yield from client.send_message(message.author, c2)
-        yield from client.send_message(message.author, c3)
-        yield from client.send_message(message.author, c4)
+        try:
+            c = open('commandslist.txt', 'r+')
+            c1 = c.read()
+            if len(c1) >= 2000:
+                c2 = c1[2000:4000]
+                c3 = c1[4000:6000]
+                c4 = c1[6000:8000]
+                c1 = c1[:2000]
+            c.close()
+            yield from client.send_message(message.author, c1)
+            yield from client.send_message(message.author, c2)
+            yield from client.send_message(message.author, c3)
+            yield from client.send_message(message.author, c4)
+        except:
+            pass
     elif '!master' in message.content.lower():
         yield from client.send_message(message.channel, 'My master is Berk oppa')
     elif '!minaboys' in message.content.lower():
         yield from client.send_message(message.channel, '(◕‿◕✿) M I N A B O Y S (◠‿◠)✌')
-    elif '!iljinsol' in message.content.lower():
-        yield from client.send_message(message.channel, 'https://i.imgur.com/1HV4khy.png')
     elif '!2/10' in message.content.lower():
         yield from client.send_message(message.channel, 'http://i.imgur.com/tV8dKP1.jpg')
     elif '!freetzuyu' in message.content.lower():
@@ -115,8 +129,6 @@ def on_message(message):
         yield from client.send_message(message.channel, 'http://i.imgur.com/9UQuGiT.png')
     elif '!poormina' in message.content.lower():
         yield from client.send_message(message.channel, 'http://i.imgur.com/skaJjeM.png')
-    elif '!chappa' in message.content.lower():
-        yield from client.send_message(message.channel, 'http://i.imgur.com/zc6zymM.jpg')
     elif '!server' in message.content.lower():
         yield from client.send_message(message.channel, '`Old Man Cho`')
     elif '!kkt' in message.content.lower():
@@ -124,49 +136,35 @@ def on_message(message):
     elif '!balance' in message.content.lower():
         yield from client.send_message(message.channel, "`rip slots, have this instead:` http://40.media.tumblr.com/tumblr_m4mn1rKgWA1rq9gbpo1_540.png")
     elif '!dafuq' in message.content.lower():
-        yield from client.send_message(message.channel, "http://i.imgur.com/Zc5Axan.gif")    
-    elif '!omo' in message.content.lower():
-        yield from client.send_message(message.channel, "http://i.imgur.com/95cTuVx.gif")   
+        yield from client.send_message(message.channel, "http://i.imgur.com/Zc5Axan.gif")
     elif '!xf' in message.content.lower():
         yield from client.send_message(message.channel, "http://i.imgur.com/izoDUtQ.jpg")  
     elif '!bbasae' in message.content.lower():
         yield from client.send_message(message.channel, "https://media.giphy.com/media/26tnkSb3oByAHRXY4/giphy.gif") 
     elif '!waytogo' in message.content.lower():
-        yield from client.send_message(message.channel, "http://i.imgur.com/7UsUVHO.gif")  
-    elif '!diet' in message.content.lower():
-        yield from client.send_message(message.channel, "http://i.imgur.com/fTmOGRL.gif")  
+        yield from client.send_message(message.channel, "http://i.imgur.com/7UsUVHO.gif")    
     elif '!pie' in message.content.lower():
         yield from client.send_message(message.channel, "http://i.imgur.com/mg1v2mM.jpg")  
     elif '!fraudy' in message.content.lower():
         yield from client.send_message(message.channel, "http://i.imgur.com/7lYedhK.gif")  
     elif '!treudy' in message.content.lower():
-        yield from client.send_message(message.channel, "http://i.imgur.com/27PucbC.gif")  
-    elif '!tease' in message.content.lower():
-        yield from client.send_message(message.channel, "https://giant.gfycat.com/FortunateMeatyAgama.gif")  
+        yield from client.send_message(message.channel, "http://i.imgur.com/27PucbC.gif")    
     elif '!weinthere' in message.content.lower():
-        yield from client.send_message(message.channel, "http://i.imgur.com/LEHsLeo.gif")  
-    elif '!bye' in message.content.lower():
-        yield from client.send_message(message.channel, "http://i.imgur.com/DKcQyeo.gif")  
+        yield from client.send_message(message.channel, "http://i.imgur.com/LEHsLeo.gif") 
     elif '!gtfo' in message.content.lower():
         yield from client.send_message(message.channel, "http://i.imgur.com/Uh2UN4M.gif")  
     elif '!gyuri' in message.content.lower():
         yield from client.send_message(message.channel, "https://pbs.twimg.com/media/B-2yofOWkAIruY5.jpg")  
     elif '!monstercock' in message.content.lower():
         yield from client.send_message(message.channel, "http://giphy.com/gifs/WAmyJDl6qSR0Y")  
-    elif '!joy' in message.content.lower():
-        yield from client.send_message(message.channel, "http://i.imgur.com/TkogKax.jpg")
     elif '!taecyeon' in message.content.lower():
         yield from client.send_message(message.channel, "http://i.imgur.com/l6g0bGN.gif")
     elif '!babyboo' in message.content.lower():
         yield from client.send_message(message.channel, "http://i.imgur.com/HYrlyVR.gif")
-    elif '!heart' in message.content.lower():
-        yield from client.send_message(message.channel, "http://i.imgur.com/JvLvRP9.gif")
     elif '!topmadam' in message.content.lower():
         yield from client.send_message(message.channel, "http://i.imgur.com/aAwItD1.gif")
     elif '!kasper' in message.content.lower():
         yield from client.send_message(message.channel, "http://i.imgur.com/gq3eW8j.gif")
-    elif '!gfriend' in message.content.lower():
-        yield from client.send_message(message.channel, "http://i.imgur.com/JIgNyiv.jpg")
     elif '!sheets' in message.content.lower():
         yield from client.send_message(message.channel, "(◕‿◕✿) Aegyo in the streets. Noona in the sheets (◕‿-)")
     elif '!berkgirl' in message.content.lower():
