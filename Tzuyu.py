@@ -59,12 +59,9 @@ def on_message(message):
                         yield from client.send_message(message.channel, "Edited `" + new[1] + "`")
                         
                 if duplicate == False:
-                    c2 += ' ' + new[1]
+                    c2 += new[1] + ' ' 
                     print(c2[len(c2)-25:]) #debug
-##                    c.truncate(0)
-##                    c.seek(0)
-##                    c.write(c2)
-                    rewrite(c, c2)
+                    _rewrite(c, c2)
                     yield from client.send_message(message.channel, "Added `" + new[1] + "` to the commands list.")
 
         except IndexError:
@@ -86,7 +83,7 @@ def on_message(message):
                 newt += '\n' + line.strip('\n')
                 
         if willdelete == 1:
-            rewrite(t, newt)
+            _rewrite(t, newt)
             c2 = c.read()
             clist = c2.split()
             if new[1] in clist:
@@ -94,13 +91,12 @@ def on_message(message):
                 c2 = ''
                 for thing in clist:
                     c2 += thing + ' '
-                rewrite(c, c2)
+                _rewrite(c, c2)
 
             yield from client.send_message(message.channel, "Deleted.")
         else:
             yield from client.send_message(message.channel, "Couldn't find.")
 
-            ## STILL NEEDS TO FIX COMMANDS LIST
     ########
     if message.content[0:7] == '!random':
         t = open('tzuyucommands.txt', 'r+')
@@ -214,7 +210,7 @@ def file_len(fname):
             pass
     return i + 1
 
-def rewrite(file, newfile):
+def _rewrite(file, newfile):
     file.truncate(0)
     file.seek(0)
     file.write(newfile)
@@ -224,80 +220,7 @@ def playlist_update():
     yield from client.wait_until_ready()
     count = 0
     time = 0
-    while count!= -1:
-        if isPlaying is False and firstTime is False and option != 'pause':
-            if playlist:
-                vce = client.voice
-                thing = playlist[0]
-                try:
-                    path = download_song(thing)
-                    if path!='butts!':
-                        player = vce.create_ffmpeg_player(path, options='''-filter:a "volume={}"'''.format(volume))
-                        
-                        player.start()
-                        isPlaying = True
-                        while thing in playlist: playlist.remove(thing)
-                        option = 'sleep'
-                    else:
-                        while thing in playlist: playlist.remove(thing)
-                except:
-                    while thing in playlist: playlist.remove(thing)
-            elif backuplist:
-                shuffle(backuplist)
-                thing = backuplist[0]
-                try:
-                    path = download_song(thing)
-                    if path!='butts!':
-                        player = vce.create_ffmpeg_player(path, options='''-filter:a "volume={}"'''.format(volume))
-                        
-                        player.start()
-                        isPlaying = True
-                        while thing in backuplist: backuplist.remove(thing)
-                        option = 'sleep'
-                    else:
-                        while thing in backuplist: backuplist.remove(thing)
-                except:
-                    while thing in backuplist: backuplist.remove(thing)
-            else:
-                with open('backuplist.txt') as f:
-                    backuplist = f.readlines()
-                for i, item in enumerate(backuplist):
-                    backuplist[i] = item.rstrip()
-                shuffle(backuplist)
-                thing = backuplist[0]
-                try:
-                    path = download_song(thing)
-                    if path!='butts!':
-                        player = vce.create_ffmpeg_player(path, options='''-filter:a "volume={}"'''.format(volume))
-                        
-                        player.start()
-                        isPlaying = True
-                        while thing in backuplist: backuplist.remove(thing)
-                        option = 'sleep'
-                    else:
-                        while thing in backuplist: backuplist.remove(thing)
-                except:
-                    while thing in backuplist: backuplist.remove(thing)
-        if option == 'sleep' or option == 'skip':
-            while option!='skip' and player.is_playing():
-                if option == 'pause':
-                    player.pause()
-                elif option == 'resume':
-                    player.resume()
-                    option = 'sleep'
-                else:
-                    yield from asyncio.sleep(1)
-            player.stop()
-            currentlyPlaying = ''
-            isPlaying = False
-        elif option == 'pause':
-            player.pause()
-            while option!='resume':
-                yield from asyncio.sleep(1)
-            player.resume()
-        else:
-            yield from asyncio.sleep(1)
-
+                
 loop = asyncio.get_event_loop()
 try:
     loop.run_until_complete(client.login(user, passw))
