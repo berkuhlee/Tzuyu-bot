@@ -40,23 +40,31 @@ def on_message(message):
     ##Tzuyucommands
     if message.content[0:4] == '!add':
         check = True
+        duplicate = False
         new = message.content.split()
         t = open('tzuyucommands.txt', 'r+')
         c = open('commandslist.txt', 'r+')
         try:
             for line in t:
-                    if new[1] == line.split()[0]:
-                        check = False
-                        yield from client.send_message(message.channel, "Command `" + new[1] + "` is already in the commands list.")
+                if new[1] == line.split()[0]:
+                    check = False
+                    yield from client.send_message(message.channel, "Command `" + new[1] + "` is already in the commands list.")
             if check == True:
-                t.write('\n' + new[1] + ' ' + new[2])
+                t.write('\n' + message.content[5:])
                 c2 = c.read()
-                c2 += ' ' + new[1]
-                print(c2[len(c2)-25:]) #debug
-                c.truncate(0)
-                c.seek(0)
-                c.write(c2)
-                yield from client.send_message(message.channel, "Added `" + new[1] + "` to the commands list.")
+                clist = c2.split()
+                for x in clist:
+                    if new[1] == x:
+                        duplicate = True
+                        yield from client.send_message(message.channel, "Edited `" + new[1] + "`")
+                        
+                if duplicate == False:
+                    c2 += ' ' + new[1]
+                    print(c2[len(c2)-25:]) #debug
+                    c.truncate(0)
+                    c.seek(0)
+                    c.write(c2)
+                    yield from client.send_message(message.channel, "Added `" + new[1] + "` to the commands list.")
 
         except IndexError:
             yield from client.send_message(message.channel, 'Please match the format `!add [command] [link]`')
@@ -64,19 +72,26 @@ def on_message(message):
             t.close()
             c.close()
     ########
-##    if message.content[0:5] == '!edit':
-##        t = open('tzuyucommands.txt', 'r+')
-##        new = message.content.split()
-##        for line in t:
-##            if new[1] == line.split()[0]:
-##                x = list(t)
-##                aa=0
-##                for element in x:
-##                    if new[1] == element.split()[0]:
-##                        del x[aa]
-##                    aa+=1
-##                
-##                yield from client.send_message(message.channel, "Edited.")
+    if message.content[0:7] == '$delete':
+        willdelete=0
+        t = open('tzuyucommands.txt', 'r+')
+        new = message.content.split()
+        newt = 'placeholder'
+        for line in t:
+            if new[1] == line.split()[0]:
+                willdelete=1
+            elif line != '':
+                newt += '\n' + line.strip('\n')
+                
+        if willdelete == 1:
+            t.truncate(0)
+            t.seek(0)
+            t.write(newt)
+            yield from client.send_message(message.channel, "Deleted.")
+        else:
+            yield from client.send_message(message.channel, "Couldn't find.")
+
+            ## STILL NEEDS TO FIX COMMANDS LIST
     ########
     if message.content[0:7] == '!random':
         t = open('tzuyucommands.txt', 'r+')
