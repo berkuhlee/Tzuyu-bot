@@ -61,9 +61,10 @@ def on_message(message):
                 if duplicate == False:
                     c2 += ' ' + new[1]
                     print(c2[len(c2)-25:]) #debug
-                    c.truncate(0)
-                    c.seek(0)
-                    c.write(c2)
+##                    c.truncate(0)
+##                    c.seek(0)
+##                    c.write(c2)
+                    rewrite(c, c2)
                     yield from client.send_message(message.channel, "Added `" + new[1] + "` to the commands list.")
 
         except IndexError:
@@ -75,6 +76,7 @@ def on_message(message):
     if message.content[0:7] == '$delete':
         willdelete=0
         t = open('tzuyucommands.txt', 'r+')
+        c = open('commandslist.txt', 'r+')
         new = message.content.split()
         newt = 'placeholder'
         for line in t:
@@ -84,9 +86,16 @@ def on_message(message):
                 newt += '\n' + line.strip('\n')
                 
         if willdelete == 1:
-            t.truncate(0)
-            t.seek(0)
-            t.write(newt)
+            rewrite(t, newt)
+            c2 = c.read()
+            clist = c2.split()
+            if new[1] in clist:
+                clist.remove(new[1])
+                c2 = ''
+                for thing in clist:
+                    c2 += thing + ' '
+                rewrite(c, c2)
+
             yield from client.send_message(message.channel, "Deleted.")
         else:
             yield from client.send_message(message.channel, "Couldn't find.")
@@ -204,6 +213,11 @@ def file_len(fname):
         for i, l in enumerate(f):
             pass
     return i + 1
+
+def rewrite(file, newfile):
+    file.truncate(0)
+    file.seek(0)
+    file.write(newfile)
 
 @asyncio.coroutine
 def playlist_update():
