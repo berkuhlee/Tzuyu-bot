@@ -11,8 +11,8 @@ import random
 #testing random
 
 #Make a new discord account and use that info for below.
-user = "berkuhlee@live.com" #input email here
-passw = "iuiu123" #input password here
+user = "email@email.com" #input email here
+passw = "password" #input password here
 
 helpmessage = "I was made to meme and track tzuyu. To add a command: `!add [command] [link]. `!commands` for a list of commands slide into your dms."
 
