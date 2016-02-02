@@ -12,7 +12,7 @@ import random
 user = "email@email.com" #input email here
 passw = "password" #input password here
 
-helpmessage = "I was made to meme and track tzuyu. To add a command: `!add [command] [link]. `!commands` for a list of commands slide into your dms."
+helpmessage = "I was made to meme and track tzuyu. To add a command: `!add [command] [link]`. `!commands` for a list of commands slid into your dms."
 
 thumbsup = ['https://i.imgur.com/hFttBo4.png','https://scontent.cdninstagram.com/hphotos-xfp1/t51.2885-15/s320x320/e35/12346292_1555213704768617_309988403_n.jpg',\
             'https://puu.sh/j18wM.jpg', 'https://57.media.tumblr.com/576937e2dc3e53298df6b26a4ec38d47/tumblr_ny8b06hBuQ1ti35kvo6_400.gif',\
