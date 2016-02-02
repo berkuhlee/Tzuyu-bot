@@ -8,8 +8,6 @@ import traceback
 from random import shuffle
 import random
 
-#testing random
-
 #Make a new discord account and use that info for below.
 user = "email@email.com" #input email here
 passw = "password" #input password here
@@ -24,7 +22,7 @@ client = discord.Client()
 
 @client.async_event
 def on_ready():
-    print('Connected! Ready to track tzuyu.')
+    print('Connected! Ready to meme.')
     print('Username: ' + client.user.name)
     print('ID: ' + client.user.id)
     print('--Server List--')
@@ -36,7 +34,10 @@ def on_message(message):
     if message.author == client.user:
         return
     if message.channel.is_private:
-        yield from client.send_message(message.channel, 'You sneaky')
+        if random.randrange(1,2) == 1:
+            yield from client.send_message(message.channel, 'You sneaky')
+        else:
+            yield from client.send_message(message.channel, 'sneaky beaky like')
     ##Tzuyucommands
     if message.content[0:4] == '!add':
         check = True
@@ -215,12 +216,6 @@ def _rewrite(file, newfile):
     file.seek(0)
     file.write(newfile)
 
-@asyncio.coroutine
-def playlist_update():
-    yield from client.wait_until_ready()
-    count = 0
-    time = 0
-                
 loop = asyncio.get_event_loop()
 try:
     loop.run_until_complete(client.login(user, passw))
