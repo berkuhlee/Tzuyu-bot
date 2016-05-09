@@ -1,5 +1,5 @@
 # Tzuyu-bot
-A bot for /r/kpop's discord
+A bot for discord's kpop server (http://discord.me/kpop)
 --------------------------
 Install guide:
 
