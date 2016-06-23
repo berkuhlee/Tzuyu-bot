@@ -1,18 +1,24 @@
 import asyncio
 import discord
-import re
-import datetime
-import youtube_dl
-import os
-import traceback
-from random import shuffle
-import random
+import random #randrange, shuffle
+import math #ceil
 
 #Make a new discord account and use that info for below.
 user = "email@email.com" #input email here
-passw = "password" #input password here
+passw = "email" #input password here
 
-helpmessage = "I was made to meme and track tzuyu. To add a command: `!add [command] [link]`. `!commands` for a list of commands slid into your dms."
+notifications_file = open('Berknotifications.txt', 'r+')
+notifications_dict = {}
+for line in notifications_file:
+    linesplit = line.split()
+    notifications_dict[linesplit[0]] = linesplit[1:]
+can_undo = False
+
+version='5.1' 
+
+helpmessage = "Hi I'm TzuyuBot v"+version+"! I was made by Berk and I have a shitload of kpop commands.\n\
+To add a command: `!add [command] [link]`. For a list of commands: `!commands`. \n\
+Other commands: `!random, !thumbsup, !say [x], !latest [#], !search [x]` Use -MomoBot for `!notification`"
 
 thumbsup = ['https://i.imgur.com/hFttBo4.png','https://scontent.cdninstagram.com/hphotos-xfp1/t51.2885-15/s320x320/e35/12346292_1555213704768617_309988403_n.jpg',\
             'https://puu.sh/j18wM.jpg', 'https://57.media.tumblr.com/576937e2dc3e53298df6b26a4ec38d47/tumblr_ny8b06hBuQ1ti35kvo6_400.gif',\
@@ -22,65 +28,77 @@ client = discord.Client()
 
 @client.async_event
 def on_ready():
-    print('Connected! Ready to meme.')
+    print('Connected! Ready to meme. (Version: '+version+')= !!, server, !latest+pms, !search')
     print('Username: ' + client.user.name)
     print('ID: ' + client.user.id)
     print('--Server List--')
     for server in client.servers:
         print(server.name)
+    print('---------------')
         
 @client.async_event
 def on_message(message):
+    global can_undo
     if message.author == client.user:
         return
-    if message.channel.is_private:
-        if random.randrange(1,2) == 1:
-            yield from client.send_message(message.channel, 'You sneaky')
-        else:
-            yield from client.send_message(message.channel, 'sneaky beaky like')
-    ##Tzuyucommands
-    if message.content[0:4] == '!add':
-        check = True
-        duplicate = False
-        new = message.content.split()
-        t = open('tzuyucommands.txt', 'r+')
-        c = open('commandslist.txt', 'r+')
+    if message.channel.is_private and message.content[0] not in ['!','$','&']:
+        yield from client.send_message(message.channel, helpmessage)
+    if '<@139653425972510722>' in message.content or '<@!139653425972510722>' in message.content or '<@&133392980865318912>' in message.content:
+        yield from client.send_message(message.channel, helpmessage)
+    ##### BerkNotifications #####
+    try:
+        yield from custom_notifications(message)
+            
+    except:
         try:
-            for line in t:
-                if new[1] == line.split()[0]:
-                    check = False
-                    yield from client.send_message(message.channel, "Command `" + new[1] + "` is already in the commands list.")
-            if check == True:
-                t.write('\n' + message.content[5:])
-                c2 = c.read()
-                clist = c2.split()
-                for x in clist:
-                    if new[1] == x:
-                        duplicate = True
-                        yield from client.send_message(message.channel, "Edited `" + new[1] + "`")
-                        
-                if duplicate == False:
-                    c2 += new[1] + ' ' 
-                    print(c2[len(c2)-25:]) #debug
-                    _rewrite(c, c2)
-                    yield from client.send_message(message.channel, "Added `" + new[1] + "` to the commands list.")
-
-        except IndexError:
+            print(' mentioned keyword:` '+ message.content)
+        except:
+            print('prob hangul in message.content')        
+    ##### Tzuyucommands #####
+    if message.content[0:5] == '!add ':
+        can_undo = True
+        message_list = message.content.lower().split()
+        if len(message_list) < 3:
             yield from client.send_message(message.channel, 'Please match the format `!add [command] [link]`')
-        finally:
-            t.close()
-            c.close()
+        elif '\n' in message.content:
+            yield from client.send_message(message.channel, 'Please keep the command on one line, do not use linebreaks (Shift-Enter)')
+        else:
+            check = True
+            t = open('tzuyucommands.txt', 'r+')
+            c = open('tzuyucommandslist.txt', 'r+')
+            try:
+                newcommand = message_list[1].strip('!')
+                for line in t:
+                    if newcommand == line.split()[0].lower():
+                        check = False
+                        yield from client.send_message(message.channel, "Command `{}` is already in the commands list.".format(newcommand) )
+                if check == True:
+                    if message_list[1] == newcommand: #if no extra !
+                        t.write('\n' + message.content[5:]) #adds link + stuff, not lowercase
+                    else:
+                        t.write('\n' + message.content[6:])
+                    c2 = c.read()
+                    c2 += newcommand + ' '
+                    _rewrite(c, c2)
+                    yield from client.send_message(message.channel, "Added `{}` to the commands list. `$undo` if you made an error".format(newcommand) )
+                    print(newcommand +' | added by: '+ message.author.name) #debug
+
+            except IndexError:
+                yield from client.send_message(message.channel, 'Please match the format `!add [command] [link]`')
+            finally:
+                t.close()
+                c.close()
     ########
-    if message.content[0:7] == '$delete':
+    if message.content[0:8].lower() == '&&delete':
         willdelete=0
         t = open('tzuyucommands.txt', 'r+')
-        c = open('commandslist.txt', 'r+')
-        new = message.content.split()
-        newt = 'placeholder'
+        c = open('tzuyucommandslist.txt', 'r+')
+        new = message.content.lower().split()
+        newt = '#tzuyu_commands#'
         for line in t:
             if new[1] == line.split()[0]:
                 willdelete=1
-            elif line != '':
+            elif line != '#tzuyu_commands#\n':
                 newt += '\n' + line.strip('\n')
                 
         if willdelete == 1:
@@ -99,111 +117,159 @@ def on_message(message):
             yield from client.send_message(message.channel, "Couldn't find.")
 
     ########
-    if message.content[0:7] == '!random':
+    try:
+        if message.content.split()[0].lower() == '$undo':
+            if can_undo == False:
+                yield from client.send_message(message.channel, "No new command was added recently.")
+            else:
+                can_undo = False
+                t = open('tzuyucommands.txt', 'r+')
+                c = open('tzuyucommandslist.txt', 'r+')
+                line_count = file_len('tzuyucommands.txt')
+                new = message.content.split()
+                newt = '#tzuyu_commands#'
+                count = 0
+                for line in t:
+                    count += 1
+                    if count == line_count:
+                        print('Undo at line {}'.format(count)) #skips line
+                    elif line != '#tzuyu_commands#\n':
+                        newt += '\n' + line.strip('\n')
+
+                _rewrite(t, newt)
+                c2 = c.read()
+                clist = c2.split()
+                undo = clist.pop()
+                c2 = ''
+                for thing in clist:
+                    c2 += thing + ' '
+                _rewrite(c,c2)
+
+                yield from client.send_message(message.channel, "Undid `{}`".format(undo))
+                print('Undid {} at line {}'.format(undo, count))
+    except IndexError:
+        pass
+    ########
+    if message.content[0:7].lower() == '!random':
         t = open('tzuyucommands.txt', 'r+')
         lines = file_len('tzuyucommands.txt')
-        r = random.randrange(0, lines)
-        z=0
+        rand_num = random.randrange(0, lines)
+        line_num = 0
         for line in t:
-            z+=1
-            if z == r:
+            line_num += 1
+            if line_num == rand_num:
                 new = line.split()
                 random_command = ''
                 for x in new:
                     random_command += x + ' '
                 yield from client.send_message(message.channel, random_command)
-    ##Tzuyucommands
+    ########
+    if message.content[0:4] == '!say':
+        yield from client.send_message(message.channel, message.content[5:])
+    ########
+    if message.content[0:5] == '!last' or message.content[0:7] == '!latest':
+        t = open('tzuyucommands.txt', 'r+')
+        lines = file_len('tzuyucommands.txt')
+        msglist = message.content.split()
+        if len(msglist) != 1:
+            lines -= int(msglist[1])
+        
+        line_num = 0
+        for line in t:
+            line_num += 1
+            if lines == line_num: # if final line
+                new = line.split()
+                command = ''
+                for x in new:
+                    command += x + ' '
+                yield from client.send_message(message.channel, command)
+    ########
+    if message.content[0:7] == '!search':
+        msglist = message.content.split()
+        if len(msglist) != 2:
+            yield from client.send_message(message.channel, 'Please match the format `!search [keyword]`, no brackets.)')
+        else:
+            c = open('tzuyucommandslist.txt', 'r+')
+            c2 = c.read()
+            command_list = c2.split()
+            return_list = []
+            for command_name in command_list:
+                if msglist[1] in command_name:
+                    return_list.append(command_name)
+            c.close()
+            if len(str(return_list)) < 2000:
+                yield from client.send_message(message.channel, str(return_list))
+            else:
+                yield from client.send_message(message.channel, 'List is too long.')
+    ##### Tzuyucommands End #####
     thumbsup2 = []
     if '!thumbsup' in message.content.lower():
         thumbsup2 = list(thumbsup)
-        shuffle(thumbsup2)
+        random.shuffle(thumbsup2)
         yield from client.send_message(message.channel, thumbsup2.pop())
-    elif '!creator' in message.content.lower():
-        yield from client.send_message(message.channel,'I was coded by Berk c:')
     elif '!help' in message.content.lower():
         yield from client.send_message(message.channel, helpmessage)
     elif '!commands' in message.content.lower():
         try:
-            c = open('commandslist.txt', 'r+')
-            c1 = c.read()
-            if len(c1) >= 2000:
-                c2 = c1[2000:4000]
-                c3 = c1[4000:6000]
-                c4 = c1[6000:8000]
-                c1 = c1[:2000]
+            c = open('tzuyucommandslist.txt', 'r+')
+            c0 = c.read()
+            yield from client.send_message(message.author, c0[:2000])
+            if len(c0) >= 2000:
+                #               1 -> 2 if round returns 3, which prints 3msgs
+                for i in range(1, math.ceil(len(c0)/2000) ):
+                    c1 = c0[i*2000:(i+1)*2000]
+                    yield from client.send_message(message.author, c1)
             c.close()
-            yield from client.send_message(message.author, c1)
-            yield from client.send_message(message.author, c2)
-            yield from client.send_message(message.author, c3)
-            yield from client.send_message(message.author, c4)
         except:
             pass
-    elif '!master' in message.content.lower():
-        yield from client.send_message(message.channel, 'My master is Berk oppa')
-    elif '!minaboys' in message.content.lower():
-        yield from client.send_message(message.channel, '(◕‿◕✿) M I N A B O Y S (◠‿◠)✌')
-    elif '!2/10' in message.content.lower():
-        yield from client.send_message(message.channel, 'http://i.imgur.com/tV8dKP1.jpg')
-    elif '!freetzuyu' in message.content.lower():
-        yield from client.send_message(message.channel, 'http://i.imgur.com/X8W4TRj.jpg')
-    elif '!yoga' in message.content.lower():
-        yield from client.send_message(message.channel, 'http://i.imgur.com/9UQuGiT.png')
-    elif '!poormina' in message.content.lower():
-        yield from client.send_message(message.channel, 'http://i.imgur.com/skaJjeM.png')
-    elif '!server' in message.content.lower():
-        yield from client.send_message(message.channel, '`Old Man Cho`')
-    elif '!kkt' in message.content.lower():
-        yield from client.send_message(message.channel, '`CREDS TO JAY:` http://i.imgur.com/ats5h3v.jpg')
-    elif '!balance' in message.content.lower():
-        yield from client.send_message(message.channel, "`rip slots, have this instead:` http://40.media.tumblr.com/tumblr_m4mn1rKgWA1rq9gbpo1_540.png")
-    elif '!dafuq' in message.content.lower():
-        yield from client.send_message(message.channel, "http://i.imgur.com/Zc5Axan.gif")
-    elif '!xf' in message.content.lower():
-        yield from client.send_message(message.channel, "http://i.imgur.com/izoDUtQ.jpg")  
-    elif '!bbasae' in message.content.lower():
-        yield from client.send_message(message.channel, "https://media.giphy.com/media/26tnkSb3oByAHRXY4/giphy.gif") 
-    elif '!waytogo' in message.content.lower():
-        yield from client.send_message(message.channel, "http://i.imgur.com/7UsUVHO.gif")    
-    elif '!pie' in message.content.lower():
-        yield from client.send_message(message.channel, "http://i.imgur.com/mg1v2mM.jpg")  
-    elif '!fraudy' in message.content.lower():
-        yield from client.send_message(message.channel, "http://i.imgur.com/7lYedhK.gif")  
-    elif '!treudy' in message.content.lower():
-        yield from client.send_message(message.channel, "http://i.imgur.com/27PucbC.gif")    
-    elif '!weinthere' in message.content.lower():
-        yield from client.send_message(message.channel, "http://i.imgur.com/LEHsLeo.gif") 
-    elif '!gtfo' in message.content.lower():
-        yield from client.send_message(message.channel, "http://i.imgur.com/Uh2UN4M.gif")  
-    elif '!gyuri' in message.content.lower():
-        yield from client.send_message(message.channel, "https://pbs.twimg.com/media/B-2yofOWkAIruY5.jpg")  
-    elif '!monstercock' in message.content.lower():
-        yield from client.send_message(message.channel, "http://giphy.com/gifs/WAmyJDl6qSR0Y")  
-    elif '!taecyeon' in message.content.lower():
-        yield from client.send_message(message.channel, "http://i.imgur.com/l6g0bGN.gif")
-    elif '!babyboo' in message.content.lower():
-        yield from client.send_message(message.channel, "http://i.imgur.com/HYrlyVR.gif")
-    elif '!topmadam' in message.content.lower():
-        yield from client.send_message(message.channel, "http://i.imgur.com/aAwItD1.gif")
-    elif '!kasper' in message.content.lower():
-        yield from client.send_message(message.channel, "http://i.imgur.com/gq3eW8j.gif")
-    elif '!sheets' in message.content.lower():
-        yield from client.send_message(message.channel, "(◕‿◕✿) Aegyo in the streets. Noona in the sheets (◕‿-)")
+    ##elif '!minaboys' in message.content.lower():
+        ##yield from client.send_message(message.channel, '(◕‿◕✿) M I N A B O Y S (◠‿◠)✌')
+    ##elif '!sheets' in message.content.lower():
+        ##yield from client.send_message(message.channel, "(◕‿◕✿) Aegyo in the streets. Noona in the sheets (◕‿-)")
     elif '!berkgirl' in message.content.lower():
         yield from client.send_message(message.channel, '(◠‿◠)✌ ʜᴇʟʟᴏ ʙᴇʀᴋ, ɪ ᴀᴍ ᴀ ʏᴏᴜɴɢ ʙᴇᴀᴜᴛɪғᴜʟ ᴋᴏʀᴇᴀɴ ɢɪʀʟ  (◡‿◡✿) \
 ᴀɴᴅ ɪ ᴡᴏᴜʟᴅ ᴊᴜsᴛ ʟɪᴋᴇ ᴛᴏ ʟᴇᴛ ʏᴏᴜ ᴋɴᴏᴡ ᴛʜᴀᴛ ɪ ᴀᴅᴍɪʀᴇ ʏᴏᴜ ᴇᴠᴇʀʏ ᴅᴀʏ ᴀɴᴅ ɢɪɢɢʟᴇ ᴛᴏ ᴍʏsᴇʟғ \
 ʙᴇᴄᴀᴜsᴇ ᴏғ ʜᴏᴡ ɢᴏᴏᴅ ʏᴏᴜ ᴀʀᴇ ᴀᴛ ᴄᴏᴅɪɴɢ ʙᴏᴛꜱ (｡♥‿♥｡).  ɪ ʜᴏᴘᴇ ᴏɴᴇ ᴅᴀʏ ʏᴏᴜ ᴄᴀɴ ᴛᴇᴀᴄʜ ᴍᴇ sᴏᴍᴇᴛʜɪɴɢ (◕‿-)')
+    elif '!shock' in message.content.lower():
+        yield from client.send_file(message.channel, fp='shock.png')
+#################### Handles all commands in the textfile ####################
     else:
         try:
-            if (message.content.lower()[0] == '!') and (message.content.lower() != '!'):
-                for line in open('tzuyucommands.txt', 'r+'):
-                        if message.content.lower()[1:] == line.split()[0]:
-                            new = line.split()
-                            user_command = ''
-                            for x in new[1:]:
-                                user_command += x + ' '
-                            yield from client.send_message(message.channel, user_command)
+            if (message.content[0] == '!') and (message.content != '!'):
+                if message.channel.id == '133389185988952064': #main-chat
+                    if message.author.id == '68661361537712128': #Berk
+                        yield from handle_commands(message)
+                else:
+                    yield from handle_commands(message)
         except IndexError:
             pass
+
+def handle_commands(message):
+    for line in open('tzuyucommands.txt', 'r+'):
+        if message.content.lower()[1:] == line.split()[0].lower():
+            new = line.split()
+            user_command = ''
+            for x in new[1:]:
+                user_command += x + ' '
+            yield from client.send_message(message.channel, user_command)
+
+############################### BerkNotifications
+
+def custom_notifications(message):
+    # { 'apink' : ['id', 'id2'], 'twice' : ['id'] }
+    # msglist = message.content.lower().split() <- taken out so includes non-exact phrases like Berky
+    ######
+    # Loop through dictionary
+    for keyword in notifications_dict:
+        if keyword in message.content.lower(): # msglist here if want exact word
+            for user_id in notifications_dict[keyword]: # if empty, does nothing
+                if user_id == message.author.id:
+                    pass
+                elif message.channel.id not in ['167825564617408513','185926636707905536']:
+                    yield from client.send_message(discord.utils.find(lambda u: u.id == user_id, client.get_all_members()),\
+                    '`{} mentioned {} in {} | {}:` {}'.format(message.author.name, keyword, message.server.name, message.channel.name, message.content) )
+
+############################### Helper Methods
 
 def file_len(fname):
     with open(fname) as f:
@@ -215,6 +281,8 @@ def _rewrite(file, newfile):
     file.truncate(0)
     file.seek(0)
     file.write(newfile)
+
+###############################
 
 loop = asyncio.get_event_loop()
 try:
