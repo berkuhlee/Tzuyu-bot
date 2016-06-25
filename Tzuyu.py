@@ -4,8 +4,8 @@ import random #randrange, shuffle
 import math #ceil
 
 #Make a new discord account and use that info for below.
-user = "email@email.com" #input email here
-passw = "email" #input password here
+user = "email" #input email here
+passw = "pass" #input password here
 
 notifications_file = open('Berknotifications.txt', 'r+')
 notifications_dict = {}
@@ -14,11 +14,12 @@ for line in notifications_file:
     notifications_dict[linesplit[0]] = linesplit[1:]
 can_undo = False
 
-version='5.1' 
+version='5.7' 
 
-helpmessage = "Hi I'm TzuyuBot v"+version+"! I was made by Berk and I have a shitload of kpop commands.\n\
-To add a command: `!add [command] [link]`. For a list of commands: `!commands`. \n\
-Other commands: `!random, !thumbsup, !say [x], !latest [#], !search [x]` Use -MomoBot for `!notification`"
+helpmessage = "Hi I'm TzuyuBot v"+version+"! I was made by <@68661361537712128> and I have a shitload of kpop commands.\n\
+To add a command: `!add [command] [link]`. For a list of commands: `!commands` or use `!search [x]`. \n\
+Other commands: `!random, !thumbsup, !say [x], !latest [#], !search [x]` \n\
+Use -MomoBot for `!notification`"
 
 thumbsup = ['https://i.imgur.com/hFttBo4.png','https://scontent.cdninstagram.com/hphotos-xfp1/t51.2885-15/s320x320/e35/12346292_1555213704768617_309988403_n.jpg',\
             'https://puu.sh/j18wM.jpg', 'https://57.media.tumblr.com/576937e2dc3e53298df6b26a4ec38d47/tumblr_ny8b06hBuQ1ti35kvo6_400.gif',\
@@ -111,6 +112,7 @@ def on_message(message):
                 for thing in clist:
                     c2 += thing + ' '
                 _rewrite(c, c2)
+            c.close()
 
             yield from client.send_message(message.channel, "Deleted.")
         else:
@@ -118,13 +120,15 @@ def on_message(message):
 
     ########
     try:
+        t = open('tzuyucommands.txt', 'r+')
+        c = open('tzuyucommandslist.txt', 'r+')
         if message.content.split()[0].lower() == '$undo':
             if can_undo == False:
                 yield from client.send_message(message.channel, "No new command was added recently.")
             else:
                 can_undo = False
-                t = open('tzuyucommands.txt', 'r+')
-                c = open('tzuyucommandslist.txt', 'r+')
+                #t = open('tzuyucommands.txt', 'r+')
+                #c = open('tzuyucommandslist.txt', 'r+')
                 line_count = file_len('tzuyucommands.txt')
                 new = message.content.split()
                 newt = '#tzuyu_commands#'
@@ -144,13 +148,18 @@ def on_message(message):
                 for thing in clist:
                     c2 += thing + ' '
                 _rewrite(c,c2)
+                t.close()
+                c.close()
 
                 yield from client.send_message(message.channel, "Undid `{}`".format(undo))
                 print('Undid {} at line {}'.format(undo, count))
     except IndexError:
-        pass
+        pass #inline uploads cause this, need to do nothing here
+    finally:
+        t.close()
+        c.close()
     ########
-    if message.content[0:7].lower() == '!random':
+    if message.content[0:7].lower() == '!random' and message.channel.id != '133389185988952064':
         t = open('tzuyucommands.txt', 'r+')
         lines = file_len('tzuyucommands.txt')
         rand_num = random.randrange(0, lines)
@@ -184,10 +193,10 @@ def on_message(message):
                     command += x + ' '
                 yield from client.send_message(message.channel, command)
     ########
-    if message.content[0:7] == '!search':
+    if message.content[0:7] == '!search' and message.channel.id != '133395844077453312' and message.channel.id != '133461932828000257' and message.channel.id != '185164155592900608':
         msglist = message.content.split()
         if len(msglist) != 2:
-            yield from client.send_message(message.channel, 'Please match the format `!search [keyword]`, no brackets.)')
+            yield from client.send_message(message.channel, 'Please match the format `!search [keyword]`, no brackets.')
         else:
             c = open('tzuyucommandslist.txt', 'r+')
             c2 = c.read()
@@ -236,7 +245,7 @@ def on_message(message):
     else:
         try:
             if (message.content[0] == '!') and (message.content != '!'):
-                if message.channel.id == '133389185988952064': #main-chat
+                if message.channel.id == '133389185988952064': #main-chat, #main-chat2: or message.channel.id == '195732639724994560'
                     if message.author.id == '68661361537712128': #Berk
                         yield from handle_commands(message)
                 else:
@@ -267,7 +276,7 @@ def custom_notifications(message):
                     pass
                 elif message.channel.id not in ['167825564617408513','185926636707905536']:
                     yield from client.send_message(discord.utils.find(lambda u: u.id == user_id, client.get_all_members()),\
-                    '`{} mentioned {} in {} | {}:` {}'.format(message.author.name, keyword, message.server.name, message.channel.name, message.content) )
+                    '`{} mentioned {} in {} | #{}:` {}'.format(message.author.name, keyword, message.server.name, message.channel.name, message.content) )
 
 ############################### Helper Methods
 
